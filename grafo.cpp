@@ -110,7 +110,7 @@ std::vector<int> Grafo::bFord(int src) {
    return dist;
 }
 
-std::vector<std::pair<int, int>> Grafo::kruskal(int &pesoTotal) {
+std::vector<std::pair<int, int>> Grafo::kruskal(int &custo) {
    std::vector<Aresta *> arestas = toArestas();
    std::vector<std::pair<int, int>> mst;
    std::sort(arestas.begin(), arestas.end(), Aresta::comp);
@@ -120,9 +120,7 @@ std::vector<std::pair<int, int>> Grafo::kruskal(int &pesoTotal) {
       pai[i] = i;
    }
 
-   int custo = 0;
-
-   for (int i = 0; i < arestas.size(); ++i) {
+   for (int i = custo = 0; i < arestas.size(); ++i) {
       Aresta *aresta = arestas[i];
       int pa = findset(pai, aresta->getU()->getId());
       int pb = findset(pai, aresta->getV()->getId());
@@ -134,7 +132,6 @@ std::vector<std::pair<int, int>> Grafo::kruskal(int &pesoTotal) {
          mst.push_back({aresta->getU()->getId(), aresta->getV()->getId()});
       }
    }
-   pesoTotal = custo;
    return mst;
 }
 
