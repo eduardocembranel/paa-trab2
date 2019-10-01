@@ -62,8 +62,8 @@ int main() {
    //   cout << it << endl;
    //}
 
-   int peso;
-   std::vector<std::pair<int, int>> res = g->kruskal(peso);
+   int peso = 0;
+   std::vector<std::pair<int, int>> res = g->prim(0, peso);// g->kruskal(peso);
    std::cout << peso << std::endl;
    for (int i = 0; i < res.size(); ++i) {
       std::cout << res[i].first << " " << res[i].second << std::endl;

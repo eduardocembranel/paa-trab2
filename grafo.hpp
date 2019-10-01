@@ -6,6 +6,8 @@
 #include "vertice.hpp"
 #include "aresta.hpp"
 
+typedef std::pair<int, int> ii;
+
 struct Link {
    std::string label; //label conexao
    int peso; //peso da conexao
@@ -30,7 +32,7 @@ class Grafo {
 
       bool orientado;
 
-      void dfsVisit(int, bool*, std::vector<std::pair<int, int>> &);
+      void dfsVisit(int, bool*, std::vector<ii> &);
 
       static bool comp(Link *, Link *);
 
@@ -48,10 +50,11 @@ class Grafo {
       void sort();
       void show() const;
 
-      std::vector<std::pair<int, int>> dfs(int);
-      std::vector<std::pair<int, int>> bfs(int);
+      std::vector<ii> dfs(int);
+      std::vector<ii> bfs(int);
       std::vector<int> bFord(int);
-      std::vector<std::pair<int, int>> kruskal(int &);
+      std::vector<ii> kruskal(int &);
+      std::vector<ii> prim(int, int &);
 };
 
 #endif // !GRAFO_HPP

@@ -31,8 +31,8 @@ void Grafo::addAresta(Aresta *aresta) {
    ++E;
 }
 
-std::vector<std::pair<int, int>> Grafo::dfs(int u) {
-   std::vector<std::pair<int, int>> res;
+std::vector<ii> Grafo::dfs(int u) {
+   std::vector<ii> res;
    bool *visitado = new bool[V];
    for (size_t i = 0; i < V; ++i) {
       visitado[i] = false;
@@ -48,7 +48,7 @@ std::vector<std::pair<int, int>> Grafo::dfs(int u) {
 }
 
 void Grafo::dfsVisit(int u, bool *visitado, 
-std::vector<std::pair<int, int>> &res) {
+std::vector<ii> &res) {
    visitado[u] = true;
    for (auto it : adj[u]) {
       int v = it->v;
@@ -59,8 +59,8 @@ std::vector<std::pair<int, int>> &res) {
    }
 }
 
-std::vector<std::pair<int, int>> Grafo::bfs(int s) {
-   std::vector<std::pair<int, int>> res;
+std::vector<ii> Grafo::bfs(int s) {
+   std::vector<ii> res;
    bool *visitado = new bool[V];
    for (size_t i = 0; i < V; ++i) {
       visitado[i] = false;
@@ -110,9 +110,9 @@ std::vector<int> Grafo::bFord(int src) {
    return dist;
 }
 
-std::vector<std::pair<int, int>> Grafo::kruskal(int &custo) {
+std::vector<ii> Grafo::kruskal(int &custo) {
    std::vector<Aresta *> arestas = toArestas();
-   std::vector<std::pair<int, int>> mst;
+   std::vector<ii> mst;
    std::sort(arestas.begin(), arestas.end(), Aresta::comp);
 
    int pai[V]; //union-find
@@ -139,6 +139,34 @@ int Grafo::findset(int v[], int x) {
    if (x != v[x])
       v[x] = findset(v, v[x]);
    return v[x];
+}
+
+std::vector<ii> Grafo::prim(int src, int &custo) {
+   std::vector<ii> res;
+   std::priority_queue<ii, std::vector<ii>, std::greater<ii>> pq;
+   std::vector<int> key(V, INF);
+   std::vector<int> pai(V, -1);
+   std::vector<bool> inMST(V, false); //vertices inclusos na MST
+
+   pq.push({0, src}); //chave do vertice inicial sera 0
+   
+   while (!pq.empty()) {
+      int u = pq.top().second; pq.pop();
+      inMST[u] = true;
+      for (auto it : adj[u]) {
+         int v = it->v;
+         int w = it->peso;
+         if (!inMST[v] && key[v] > w) {
+            key[v] = w;
+            pq.push({key[v], v});
+            pai[v] = u;
+         }
+      }
+   }
+   for (int i = 1; i < V; ++i) {
+      res.push_back({pai[i], i});
+   }
+   return res;
 }
 
 bool Grafo::comp(Link *a, Link *b) {
