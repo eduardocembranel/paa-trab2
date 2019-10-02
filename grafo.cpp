@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <queue>
+#include <set>
 
 #include "grafo.hpp"
 
@@ -31,18 +32,13 @@ void Grafo::addAresta(Aresta *aresta) {
    ++E;
 }
 
-std::vector<ii> Grafo::dfs(int u) {
+std::vector<ii> Grafo::dfs(int src) {
    std::vector<ii> res;
    bool *visitado = new bool[V];
    for (size_t i = 0; i < V; ++i) {
       visitado[i] = false;
    }
-
-   for (size_t i = 0; i < V; ++i) {
-      if (!visitado[i]) {
-         dfsVisit(u, visitado, res);
-      }
-   }
+   dfsVisit(src, visitado, res);
    delete visitado;
    return res;
 }
@@ -59,16 +55,16 @@ std::vector<ii> &res) {
    }
 }
 
-std::vector<ii> Grafo::bfs(int s) {
+std::vector<ii> Grafo::bfs(int src) {
    std::vector<ii> res;
    bool *visitado = new bool[V];
    for (size_t i = 0; i < V; ++i) {
       visitado[i] = false;
    }
-   visitado[s] = true;
+   visitado[src] = true;
 
    std::queue<int> q;
-   q.push(s);
+   q.push(src);
    while (!q.empty()) {
       int u = q.front();
       for (auto it : adj[u]) {
@@ -85,29 +81,45 @@ std::vector<ii> Grafo::bfs(int s) {
    return res;
 }
 
-std::vector<int> Grafo::bFord(int src) {
+bool Grafo::bFord(int src, std::vector<ii> &caminhos, std::vector<int> &custo) {
    std::vector<int> dist(V);
+   std::vector<int> pred(V);
    for (size_t i = 0; i < V; ++i) {
       dist[i] = INF;
+      pred[i] = -1;
    }
    dist[src] = 0;
 
    for (int i = 0; i < V - 1; ++i) {
       for (size_t j = 0; j < V; ++j) {
          for (auto it : adj[j]) {
-            dist[it->v] = std::min(dist[j] + it->peso, dist[it->v]);
+            if (dist[j] + it->peso < dist[it->v]) {
+               dist[it->v] = dist[j] + it->peso;
+               pred[it->v] = j;
+            }
          }
       }
    }
-
    for (size_t j = 0; j < V; ++j) {
       for (auto it : adj[j]) {
          if (dist[j] + it->peso < dist[it->v]) {
-            dist[it->v] = -INF;
+            return false;
          }
       }
    }
-   return dist;
+   custo = dist;
+   caminhos = bFordReconstruct(pred);
+   return true;
+}
+
+std::vector<ii> Grafo::bFordReconstruct(std::vector<int> pred) {
+   std::set<ii> arestas;
+   for (int i = 0; i < V; ++i) { //reconstroi o caminho para cada destino
+      for (int atual = i; pred[atual] != -1; atual = pred[atual]) {
+         arestas.insert({pred[atual], atual});
+      }
+   }
+   return std::vector<ii>(arestas.begin(), arestas.end());
 }
 
 std::vector<ii> Grafo::kruskal(int &custo) {
@@ -115,20 +127,20 @@ std::vector<ii> Grafo::kruskal(int &custo) {
    std::vector<ii> mst;
    std::sort(arestas.begin(), arestas.end(), Aresta::comp);
 
-   int pai[V]; //union-find
+   int pred[V]; //union-find
    for (int i = 0; i < V; ++i) {
-      pai[i] = i;
+      pred[i] = i;
    }
 
    for (int i = custo = 0; i < arestas.size(); ++i) {
       Aresta *aresta = arestas[i];
-      int pa = findset(pai, aresta->getU()->getId());
-      int pb = findset(pai, aresta->getV()->getId());
+      int pa = findset(pred, aresta->getU()->getId());
+      int pb = findset(pred, aresta->getV()->getId());
 
       //se n estao no msm conjunto, adicionamos a aresta e n ira formar ciclo
       if (pa != pb) { 
          custo += aresta->getPeso();
-         pai[pa] = pb;
+         pred[pa] = pb;
          mst.push_back({aresta->getU()->getId(), aresta->getV()->getId()});
       }
    }
@@ -143,13 +155,14 @@ int Grafo::findset(int v[], int x) {
 
 std::vector<ii> Grafo::prim(int src, int &custo) {
    std::vector<ii> res;
-   std::priority_queue<ii, std::vector<ii>, std::greater<ii>> pq;
    std::vector<int> key(V, INF);
-   std::vector<int> pai(V, -1);
+   std::vector<ii> pai(V, {-1, 0});
    std::vector<bool> inMST(V, false); //vertices inclusos na MST
+   std::priority_queue<ii, std::vector<ii>, std::greater<ii>> pq;
 
    pq.push({0, src}); //chave do vertice inicial sera 0
-   
+   key[src] = 0;
+
    while (!pq.empty()) {
       int u = pq.top().second; pq.pop();
       inMST[u] = true;
@@ -159,23 +172,22 @@ std::vector<ii> Grafo::prim(int src, int &custo) {
          if (!inMST[v] && key[v] > w) {
             key[v] = w;
             pq.push({key[v], v});
-            pai[v] = u;
+            pai[v] = {u, w};
          }
       }
    }
-   for (int i = 1; i < V; ++i) {
-      res.push_back({pai[i], i});
+   for (int i = custo = 0; i < V; ++i) {
+      if (i != src) {
+         res.push_back({pai[i].first, i});
+         custo += pai[i].second;
+      }
    }
    return res;
 }
 
-bool Grafo::comp(Link *a, Link *b) {
-   return (a->v < b->v);
-}
-
 void Grafo::sort() {
    for (size_t i = 0; i < V; ++i) {
-      std::sort(adj[i].begin(), adj[i].end(), Grafo::comp);
+      std::sort(adj[i].begin(), adj[i].end(), Link::comp);
    }
 }
 
