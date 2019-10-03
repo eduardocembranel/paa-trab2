@@ -53,3 +53,8 @@ void Aresta::setLabel(std::string label) {
 bool Aresta::comp(Aresta *a, Aresta *b) {
    return (a->peso < b->peso);
 }
+
+Aresta::~Aresta() {
+   delete u;
+   delete v;
+}

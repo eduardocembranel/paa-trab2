@@ -8,7 +8,9 @@
 #define INF 0x3f3f3f3f
 
 Grafo::Grafo() {
-
+   this->V = 0;
+   this->E = 0;
+   adj = nullptr;
 }
 
 Grafo::Grafo(int V, std::vector<Vertice *> vertices, bool orientado) {
@@ -144,7 +146,24 @@ std::vector<ii> Grafo::kruskal(int &custo) {
          mst.push_back({aresta->getU()->getId(), aresta->getV()->getId()});
       }
    }
+   for (size_t i = 0; i < arestas.size(); ++i) {
+      delete arestas[i];
+   }
    return mst;
+}
+
+std::vector<Aresta *> Grafo::toArestas() {
+   std::vector<Aresta *> arestas;
+   for (size_t i = 0; i < V; ++i) {
+      for (auto it : adj[i]) {
+         int v = it->v;
+         int w = it->peso;
+         if (i < v)  {
+            arestas.push_back(new Aresta(w, new Vertice(i), new Vertice(v)));
+         }
+      }
+   }
+   return arestas;
 }
 
 int Grafo::findset(int v[], int x) {
@@ -156,7 +175,7 @@ int Grafo::findset(int v[], int x) {
 std::vector<ii> Grafo::prim(int src, int &custo) {
    std::vector<ii> res;
    std::vector<int> key(V, INF);
-   std::vector<ii> pai(V, {-1, 0});
+   std::vector<ii> pred(V, {-1, 0});
    std::vector<bool> inMST(V, false); //vertices inclusos na MST
    std::priority_queue<ii, std::vector<ii>, std::greater<ii>> pq;
 
@@ -171,15 +190,15 @@ std::vector<ii> Grafo::prim(int src, int &custo) {
          int w = it->peso;
          if (!inMST[v] && key[v] > w) {
             key[v] = w;
+            pred[v] = {u, w};
             pq.push({key[v], v});
-            pai[v] = {u, w};
          }
       }
    }
    for (int i = custo = 0; i < V; ++i) {
       if (i != src) {
-         res.push_back({pai[i].first, i});
-         custo += pai[i].second;
+         res.push_back({pred[i].first, i});
+         custo += pred[i].second;
       }
    }
    return res;
@@ -189,20 +208,6 @@ void Grafo::sort() {
    for (size_t i = 0; i < V; ++i) {
       std::sort(adj[i].begin(), adj[i].end(), Link::comp);
    }
-}
-
-std::vector<Aresta *> Grafo::toArestas() {
-   std::vector<Aresta *> arestas;
-   for (size_t i = 0; i < V; ++i) {
-      for (auto it : adj[i]) {
-         int v = it->v;
-         int w = it->peso;
-         if (i <= v)  {
-            arestas.push_back(new Aresta(w, new Vertice(i), new Vertice(v)));
-         }
-      }
-   }
-   return arestas;
 }
 
 //debug
@@ -219,6 +224,7 @@ Grafo::~Grafo() {
    for (size_t i = 0; i < V; ++i) {
       for (auto it : adj[i]) {
          delete it; it = nullptr;
+         delete vertices[i]; vertices[i] = nullptr;
       }
    }
    delete [] adj; adj = nullptr;

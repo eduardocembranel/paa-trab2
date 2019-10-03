@@ -16,6 +16,7 @@ class Aresta {
       Aresta();
       Aresta(const std::string &, int, Vertice *, Vertice *);
       Aresta(int, Vertice *, Vertice *);
+      ~Aresta();
 
       int getPeso() const;
       Vertice *getU() const;

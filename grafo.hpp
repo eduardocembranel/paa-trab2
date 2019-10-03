@@ -12,16 +12,13 @@ typedef std::pair<int, int> ii;
 class Grafo {
    private:
       int V; //num vertices
-
       int E; //num arestas
-
       std::vector<Link *> *adj; //lista de adjacencia
-
       std::vector<Vertice *> vertices; //lista de vertices
-
       bool orientado;
 
-      void dfsVisit(int, bool*, std::vector<ii> &);
+
+      void dfsVisit(int, bool*, std::vector<ii> &);      
 
       std::vector<Aresta *> toArestas();
 
