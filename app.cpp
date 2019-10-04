@@ -6,6 +6,7 @@
 #include "app.hpp"
 #include "grafo.hpp"
 #include "util.hpp"
+#include "graphDrawer.hpp"
 
 App::App() {
    grafo = nullptr;
@@ -41,7 +42,8 @@ void App::loop() {
       } else if (escolha == CARREGAR) {
          driverCarregar();
       } else if (escolha == DESENHAR) {
-         //desenhar
+         GraphDrawer *g = new GraphDrawer();
+         g->grapoToDot(grafo, "BFS");
       } else if (escolha != SAIR) {
          std::cerr << "\nOpcao invalida!\n";
          pressionaParaRetornar();
@@ -259,7 +261,7 @@ bool App::carregaGrafo(std::string caminho) {
       } else {
          line = line.substr(foundPos + 1);
          ss.str(line);
-         ss >> label;
+         std::getline(ss, label);
       }
 
       //insere no grafo

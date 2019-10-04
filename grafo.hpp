@@ -35,6 +35,8 @@ class Grafo {
       int getNumV() const;
       void addAresta(Aresta *);
       std::vector<Link *> * getAdj();
+      std::vector<Vertice *> getVertices();
+      bool isOrientado() const;
 
       void sort();
 

@@ -35,8 +35,20 @@ void Grafo::addAresta(Aresta *aresta) {
    ++E;
 }
 
+int Grafo::getNumV() const {
+   return V;
+}
+
 std::vector<Link *> *Grafo::getAdj() {
    return adj;
+}
+
+std::vector<Vertice *> Grafo::getVertices() {
+   return vertices;
+}
+
+bool Grafo::isOrientado() const {
+   return orientado;
 }
 
 std::vector<ii> Grafo::dfs(int src) {
