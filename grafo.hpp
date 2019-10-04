@@ -24,7 +24,9 @@ class Grafo {
 
       int findset(int *, int);
 
-      std::vector<ii> bFordReconstruct(std::vector<int>);
+      std::vector<ii> bellmanFordReconstruct(std::vector<int>);
+
+      bool fordFurkersonPathFinder(Grafo *, int, int, int *);
 
    public:
       Grafo();
@@ -32,6 +34,8 @@ class Grafo {
       ~Grafo();
       int getNumV() const;
       void addAresta(Aresta *);
+      std::vector<Link *> * getAdj();
+
       void sort();
 
       void show() const; //debug
@@ -40,7 +44,8 @@ class Grafo {
       std::vector<ii> bfs(int); //ok
       std::vector<ii> kruskal(int &); //ok
       std::vector<ii> prim(int, int &); //ok
-      bool bFord(int, std::vector<ii> &, std::vector<int> &); //ok
+      bool bellmanFord(int, std::vector<ii> &, std::vector<int> &); //ok
+      int fordFurkerson(int, int, Grafo *&);
 };
 
 #endif // !GRAFO_HPP

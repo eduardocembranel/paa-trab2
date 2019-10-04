@@ -10,8 +10,8 @@ class App {
       ~App();
 
    private:
-      enum opcoesMenu {INDEFINIDO = -1, DFS = 1, BFS, BF, KRUSKAL, PRIM, 
-      FFURKERSON, CARREGAR, DESENHAR, SAIR};
+      enum opcoesMenu {INDEFINIDO = -1, DFS = 1, BFS, BELLMANFORD, KRUSKAL, PRIM, 
+      FORDFURKERSON, CARREGAR, DESENHAR, SAIR};
 
       Grafo *grafo;
 
@@ -28,11 +28,14 @@ class App {
       bool carregaGrafo(std::string);
 
       int askVertice();
+
+      void askSourceDst(int &, int &);
+
       void runDFS(int);
       void runBFS(int);
       void runPrim(int);
-      void runFFurkerson(int);
-      void runBFord(int);
+      void runFordFurkerson(int, int);
+      void runBellmanFord(int);
       void runKruskal();
 };
 

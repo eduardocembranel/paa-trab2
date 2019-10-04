@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <cstring>
 #include <queue>
 #include <set>
 
@@ -34,14 +35,16 @@ void Grafo::addAresta(Aresta *aresta) {
    ++E;
 }
 
+std::vector<Link *> *Grafo::getAdj() {
+   return adj;
+}
+
 std::vector<ii> Grafo::dfs(int src) {
    std::vector<ii> res;
    bool *visitado = new bool[V];
-   for (size_t i = 0; i < V; ++i) {
-      visitado[i] = false;
-   }
+   memset(visitado, false, sizeof(visitado));
    dfsVisit(src, visitado, res);
-   delete visitado;
+   delete [] visitado;
    return res;
 }
 
@@ -83,7 +86,8 @@ std::vector<ii> Grafo::bfs(int src) {
    return res;
 }
 
-bool Grafo::bFord(int src, std::vector<ii> &caminhos, std::vector<int> &custo) {
+bool Grafo::bellmanFord(int src, std::vector<ii> &caminhos, 
+std::vector<int> &custo) {
    std::vector<int> dist(V);
    std::vector<int> pred(V);
    for (size_t i = 0; i < V; ++i) {
@@ -110,11 +114,11 @@ bool Grafo::bFord(int src, std::vector<ii> &caminhos, std::vector<int> &custo) {
       }
    }
    custo = dist;
-   caminhos = bFordReconstruct(pred);
+   caminhos = bellmanFordReconstruct(pred);
    return true;
 }
 
-std::vector<ii> Grafo::bFordReconstruct(std::vector<int> pred) {
+std::vector<ii> Grafo::bellmanFordReconstruct(std::vector<int> pred) {
    std::set<ii> arestas;
    for (int i = 0; i < V; ++i) { //reconstroi o caminho para cada destino
       for (int atual = i; pred[atual] != -1; atual = pred[atual]) {
@@ -202,6 +206,82 @@ std::vector<ii> Grafo::prim(int src, int &custo) {
       }
    }
    return res;
+}
+
+int Grafo::fordFurkerson(int src, int dst, Grafo *&resGraph) {
+   //grafo residual
+   //inicialmente possui a capacidade do grafo original
+   resGraph = new Grafo(*this);
+
+   int *pred = new int[V];
+   int fluxoMaximo = 0;
+
+   //enquanto tem caminho q pode aumentar o fluxo:
+   while (fordFurkersonPathFinder(resGraph, src, dst, pred)) {
+      //encontra a menor capacidade residual:
+      int flow = INF;
+      int u, v, w;
+      for (v = dst; v != src; v = pred[v]) {
+         u = pred[v];
+         for (auto it : resGraph->getAdj()[u]) {
+            if (it->v == v) {
+               w = it->peso;
+               break;
+            }
+         }
+         flow = std::min(flow, w);
+      }
+
+      //atualiza as capacidades residuais:
+      for (v = dst; v != src; v = pred[v]) {
+         u = pred[v];
+         for (auto it : resGraph->getAdj()[u]) {
+            if (it->v == v) {
+               it->peso -= flow;
+               break;
+            }
+         }
+         for (auto it : resGraph->getAdj()[v]) {
+            if (it->v == u) {
+               it->peso += flow;
+               break;
+            }
+         }
+      }
+      fluxoMaximo += flow;
+   }
+
+   delete [] pred;
+   return fluxoMaximo;
+}
+
+bool Grafo::fordFurkersonPathFinder(Grafo *resGraph, int s, int t, int *pred) {
+   bool *visitado = new bool[V];
+   memset(visitado, false, sizeof(visitado));
+
+   std::queue<int> q;
+   q.push(s);
+   visitado[s] = true;
+   pred[s] = -1;
+
+   while (!q.empty()) {
+      int u = q.front(); q.pop();
+      for (size_t v = 0; v < V; ++v) {
+         if (!visitado[v]) {
+            std::vector<Link *> tmp = resGraph->getAdj()[u];
+            for (auto it : tmp) {
+               if (it->v == v && it->peso > 0) {
+                  q.push(v);
+                  pred[v] = u;
+                  visitado[v] = true;
+               }
+            }
+         }
+      }
+   }
+   bool existe = (visitado[t] == true);
+   delete [] visitado;
+   return existe;
 }
 
 void Grafo::sort() {

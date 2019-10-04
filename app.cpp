@@ -17,7 +17,7 @@ void App::loop() {
       mostraMenu();
       std::cin >> escolha;
       limpaBuffer();
-      if (escolha >= DFS && escolha <= FFURKERSON && grafo == nullptr) {
+      if (escolha >= DFS && escolha <= FORDFURKERSON && grafo == nullptr) {
          std::cerr << "\nGrafo nao carregado!\n";
          pressionaParaRetornar();
       } else if (escolha == DFS) {
@@ -26,17 +26,18 @@ void App::loop() {
       } else if (escolha == BFS) {
          int vertice = askVertice();
          runBFS(vertice);
-      } else if (escolha == BF) {
+      } else if (escolha == BELLMANFORD) {
          int vertice = askVertice();
-         runBFord(vertice);
+         runBellmanFord(vertice);
       } else if (escolha == KRUSKAL) {
          runKruskal();
       } else if (escolha == PRIM) {
          int vertice = askVertice();
          runPrim(vertice);
-      } else if (escolha == FFURKERSON) {
-         int vertice = askVertice();
-         runFFurkerson(vertice);
+      } else if (escolha == FORDFURKERSON) {
+         int s, t;
+         askSourceDst(s, t);
+         runFordFurkerson(s, t);
       } else if (escolha == CARREGAR) {
          driverCarregar();
       } else if (escolha == DESENHAR) {
@@ -56,10 +57,9 @@ void App::driverCarregar() {
    std::cin >> caminhoArquivo;
    limpaBuffer();
    if (carregaGrafo(caminhoArquivo)) {
-      grafo->show();
-      std::cout << "\nGrafo carregado com sucesso!\n";
+      std::cout << "\nGrafo carregado com sucesso!\n\n";
    } else {
-      std::cerr << "\nArquivo nao encontrado!\n";
+      std::cerr << "\nArquivo nao encontrado!\n\n";
    }
    pressionaParaRetornar();
 }
@@ -70,6 +70,14 @@ int App::askVertice() {
    std::cin >> vertice;
    limpaBuffer();
    return vertice;
+}
+
+void App::askSourceDst(int &s, int &t) {
+   std::cout << ">> Vertice fonte: ";
+   std::cin >> s;
+   std::cout << ">> Vertice ralo: ";
+   std::cin >> t;
+   limpaBuffer();
 }
 
 void App::runDFS(int src) {
@@ -100,13 +108,13 @@ void App::runBFS(int src) {
    pressionaParaRetornar();
 }
 
-void App::runBFord(int src) {
+void App::runBellmanFord(int src) {
    limpaTela();
    std::cout << "[BELLMAN-FORD]\n\n";
 
    std::vector<ii> caminhos;
    std::vector<int> custos;
-   if (grafo->bFord(src, caminhos, custos)) {
+   if (grafo->bellmanFord(src, caminhos, custos)) {
       for (auto it : caminhos) {
          std::cout << it.first << "," << it.second << "\n";
       }
@@ -147,11 +155,15 @@ void App::runPrim(int src) {
    pressionaParaRetornar();
 }
 
-void App::runFFurkerson(int src) {
+void App::runFordFurkerson(int src, int dst) {
    limpaTela();
    std::cout << "[FORD-FURKERSON]\n\n";
 
-   //
+   Grafo *novo = nullptr;
+   int fluxoMaximo = grafo->fordFurkerson(src, dst, novo);
+   std::cout << "Fluxo Maximo: " << fluxoMaximo << "\n";
+
+   //salva
 
    pressionaParaRetornar();
 }
