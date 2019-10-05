@@ -10,6 +10,7 @@
 
 App::App() {
    grafo = nullptr;
+   drawer = new GraphDrawer();
 }
 
 void App::loop() {
@@ -18,7 +19,7 @@ void App::loop() {
       mostraMenu();
       std::cin >> escolha;
       limpaBuffer();
-      if (escolha >= DFS && escolha <= FORDFURKERSON && grafo == nullptr) {
+      if (escolha >= DFS && escolha <= FORDFULKERSON && grafo == nullptr) {
          std::cerr << "\nGrafo nao carregado!\n";
          pressionaParaRetornar();
       } else if (escolha == DFS) {
@@ -35,15 +36,14 @@ void App::loop() {
       } else if (escolha == PRIM) {
          int vertice = askVertice();
          runPrim(vertice);
-      } else if (escolha == FORDFURKERSON) {
+      } else if (escolha == FORDFULKERSON) {
          int s, t;
          askSourceDst(s, t);
-         runFordFurkerson(s, t);
+         runFordFulkerson(s, t);
       } else if (escolha == CARREGAR) {
          driverCarregar();
       } else if (escolha == DESENHAR) {
-         GraphDrawer *g = new GraphDrawer();
-         g->grapoToDot(grafo, "BFS");
+         driverDesenhar();
       } else if (escolha != SAIR) {
          std::cerr << "\nOpcao invalida!\n";
          pressionaParaRetornar();
@@ -62,6 +62,20 @@ void App::driverCarregar() {
       std::cout << "\nGrafo carregado com sucesso!\n\n";
    } else {
       std::cerr << "\nArquivo nao encontrado!\n\n";
+   }
+   pressionaParaRetornar();
+}
+
+void App::driverDesenhar() {
+   if (grafo == nullptr) {
+      std::cerr << "\nGrafo nao carregado!\n";
+   } else {
+      std::clog << ">> Gerando desenho...\n";
+      GraphDrawer *drawer = new GraphDrawer();
+      drawer->drawGraph(grafo, "Grafo");
+      delete drawer;
+      std::clog << ">> Desenho finalizado com sucesso!\n\n";
+      system("xdg-open Grafo.png");
    }
    pressionaParaRetornar();
 }
@@ -87,12 +101,10 @@ void App::runDFS(int src) {
    std::cout << "[DFS]\n\n";
 
    std::vector<ii> res = grafo->dfs(src);
-   for (auto it : res) {
-      std::cout << it.first << "," << it.second << "\n";
-   }
-   //salva arquivo
+   drawer->drawGraphHighlighted(grafo, "DFS", res, src);
+   std::cout << "Arvore resultante em DFS.png\n\n";
+   system("xdg-open DFS.png");
 
-   std::cout << "Arvore resultante em dfs.png\n";
    pressionaParaRetornar();
 }
 
@@ -101,12 +113,10 @@ void App::runBFS(int src) {
    std::cout << "[BFS]\n\n";
 
    std::vector<ii> res = grafo->bfs(src);
-   for (auto it : res) {
-      std::cout << it.first << "," << it.second << "\n";
-   }
-   //salva arquivo
+   drawer->drawGraphHighlighted(grafo, "BFS", res, src);
+   std::cout << "Arvore resultante em BFS.png\n\n";
+   system("xdg-open BFS.png");
 
-   std::cout << "Arvore resultante em bfs.png\n";
    pressionaParaRetornar();
 }
 
@@ -117,14 +127,9 @@ void App::runBellmanFord(int src) {
    std::vector<ii> caminhos;
    std::vector<int> custos;
    if (grafo->bellmanFord(src, caminhos, custos)) {
-      for (auto it : caminhos) {
-         std::cout << it.first << "," << it.second << "\n";
-      }
-      std::cout << "\nCustos:\n";
-      for (auto it : custos) {
-         std::cout << it << "\n";
-      }
-      //desenha
+      drawer->drawGraphBellmanFord(grafo, "BellmanFord", caminhos, src, custos);
+      std::cout << "Resultado em BellmanFord.png\n\n";
+      system("xdg-open BellmanFord.png");
    } else {
       std::cerr << "\nCiclo de peso negativo encontrado\n";
    }
@@ -137,10 +142,12 @@ void App::runKruskal() {
 
    int custo;
    std::vector<ii> res = grafo->kruskal(custo);
-   //salva arquivo
-
    std::cout << "Custo: " << custo << "\n";
-   std::cout << "MST resultante em kruskal.png\n\n";
+
+   drawer->drawGraphHighlighted(grafo, "Kruskal", res);
+   std::cout << "MST resultante em Kruskal.png\n\n";
+   system("xdg-open Kruskal.png");
+
    pressionaParaRetornar();
 }
 
@@ -150,23 +157,29 @@ void App::runPrim(int src) {
 
    int custo;
    std::vector<ii> res = grafo->prim(src, custo);
-   //salva arquivo
 
    std::cout << "Custo: " << custo << "\n";
-   std::cout << "MST resultante em prim.png\n\n";
+
+   drawer->drawGraphHighlighted(grafo, "Prim", res, src);
+   std::cout << "MST resultante em Prim.png\n\n";
+   system("xdg-open Prim.png");
+
    pressionaParaRetornar();
 }
 
-void App::runFordFurkerson(int src, int dst) {
+void App::runFordFulkerson(int src, int dst) {
    limpaTela();
-   std::cout << "[FORD-FURKERSON]\n\n";
+   std::cout << "[FORD-Fulkerson]\n\n";
 
    Grafo *novo = nullptr;
-   int fluxoMaximo = grafo->fordFurkerson(src, dst, novo);
+   int fluxoMaximo = grafo->fordFulkerson(src, dst, novo);
    std::cout << "Fluxo Maximo: " << fluxoMaximo << "\n";
 
-   //salva
+   drawer->drawGraphFordFulkerson(grafo, novo, src, dst);
+   std::cout << "Resultado em FordFulkerson.png\n\n";
+   system("xdg-open FordFulkerson.png");
 
+   delete novo; novo = nullptr;
    pressionaParaRetornar();
 }
 
@@ -275,4 +288,5 @@ bool App::carregaGrafo(std::string caminho) {
 
 App::~App() {
    delete grafo;
+   delete drawer;
 }

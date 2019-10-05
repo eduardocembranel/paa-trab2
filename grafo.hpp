@@ -26,16 +26,23 @@ class Grafo {
 
       std::vector<ii> bellmanFordReconstruct(std::vector<int>);
 
-      bool fordFurkersonPathFinder(Grafo *, int, int, int *);
+      bool fordFulkersonPathFinder(Grafo *&, int, int, int *);
 
    public:
       Grafo();
       Grafo(int, std::vector<Vertice *>, bool=false);
+
+      //copy constructor
+      Grafo(Grafo &);
+
+
       ~Grafo();
       int getNumV() const;
+      int getNumE() const;
       void addAresta(Aresta *);
       std::vector<Link *> * getAdj();
       std::vector<Vertice *> getVertices();
+      std::string getLabelVertice(int);
       bool isOrientado() const;
 
       void sort();
@@ -47,7 +54,7 @@ class Grafo {
       std::vector<ii> kruskal(int &); //ok
       std::vector<ii> prim(int, int &); //ok
       bool bellmanFord(int, std::vector<ii> &, std::vector<int> &); //ok
-      int fordFurkerson(int, int, Grafo *&);
+      int fordFulkerson(int, int, Grafo *&);
 };
 
 #endif // !GRAFO_HPP

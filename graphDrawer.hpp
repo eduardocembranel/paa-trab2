@@ -10,18 +10,25 @@ class GraphDrawer {
    public:
       GraphDrawer();
    //private:
-      std::string graphAttr;
-
       bool saveImageGV(std::string);
       
-      void grapoToDot(Grafo *, std::string, int=-1);
-
+      void drawGraph(Grafo *, std::string);
+      void drawGraphHighlighted(Grafo *, std::string, std::vector<ii>, int=-1);
       
+      //n precisa passar a string
+      void drawGraphBellmanFord(Grafo *, std::string, std::vector<ii>, int, 
+      std::vector<int>);
+      
+      
+      void drawGraphFordFulkerson(Grafo *, Grafo *, int, int);
+
       void setGraphAttr(std::ofstream &, std::string);
       void setNodeAttr(std::ofstream &);
       void setEdgeAttr(std::ofstream &, bool);
-      void nodeDefine(std::ofstream &, Grafo *, int=-1);
-      void edgeDefine(std::ofstream &, Grafo *);
+      void nodeDefine(std::ofstream &, Grafo *, int=-1, int=-1);
+      void nodeDefineBellmanFord(std::ofstream &, Grafo *, int, std::vector<int>);    void edgeDefine(std::ofstream &, Grafo *);
+      void edgeDefineHighlighted(std::ofstream &, Grafo *, std::vector<ii>);
+      void edgeDefineFordFulkerson(std::ofstream &, Grafo *, Grafo *);
 };
 
 #endif // !GRAPHDRAWER

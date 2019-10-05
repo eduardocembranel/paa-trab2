@@ -2,6 +2,7 @@
 #define APP_HPP
 
 #include "grafo.hpp"
+#include "graphDrawer.hpp"
 
 class App {
    public:
@@ -11,9 +12,10 @@ class App {
 
    private:
       enum opcoesMenu {INDEFINIDO = -1, DFS = 1, BFS, BELLMANFORD, KRUSKAL, PRIM, 
-      FORDFURKERSON, CARREGAR, DESENHAR, SAIR};
+      FORDFULKERSON, CARREGAR, DESENHAR, SAIR};
 
       Grafo *grafo;
+      GraphDrawer *drawer;
 
       void limpaTela();
 
@@ -25,6 +27,8 @@ class App {
 
       void driverCarregar();
 
+      void driverDesenhar();
+
       bool carregaGrafo(std::string);
 
       int askVertice();
@@ -34,7 +38,7 @@ class App {
       void runDFS(int);
       void runBFS(int);
       void runPrim(int);
-      void runFordFurkerson(int, int);
+      void runFordFulkerson(int, int);
       void runBellmanFord(int);
       void runKruskal();
 };

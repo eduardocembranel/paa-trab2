@@ -22,6 +22,21 @@ Grafo::Grafo(int V, std::vector<Vertice *> vertices, bool orientado) {
    adj = new std::vector<Link *>[V];
 }
 
+//copy constructor (sem os vertices)
+Grafo::Grafo(Grafo &other) {
+   this->V = other.getNumV();
+   this->E = other.getNumE();
+   this->orientado = other.isOrientado();
+   this->adj = new std::vector<Link *>[V];
+   for (size_t i = 0; i < V; ++i) {
+      for (size_t j = 0; j < other.getAdj()[i].size(); ++j) {
+         Link *v = other.getAdj()[i][j];
+         adj[i].push_back(new Link(v->label, v->peso, v->v));
+      }
+   }
+}
+
+
 void Grafo::addAresta(Aresta *aresta) {
    int u = aresta->getU()->getId();
    int v = aresta->getV()->getId();
@@ -39,12 +54,23 @@ int Grafo::getNumV() const {
    return V;
 }
 
+int Grafo::getNumE() const {
+   return E;
+}
+
 std::vector<Link *> *Grafo::getAdj() {
    return adj;
 }
 
 std::vector<Vertice *> Grafo::getVertices() {
    return vertices;
+}
+
+std::string Grafo::getLabelVertice(int u) {
+   if (vertices[u]->getLabel() == "") {
+      return std::to_string(vertices[u]->getId());
+   }
+   return vertices[u]->getLabel();
 }
 
 bool Grafo::isOrientado() const {
@@ -109,18 +135,20 @@ std::vector<int> &custo) {
    dist[src] = 0;
 
    for (int i = 0; i < V - 1; ++i) {
-      for (size_t j = 0; j < V; ++j) {
-         for (auto it : adj[j]) {
-            if (dist[j] + it->peso < dist[it->v]) {
-               dist[it->v] = dist[j] + it->peso;
-               pred[it->v] = j;
+      for (size_t u = 0; u < V; ++u) {
+         for (auto it : adj[u]) {
+            //relax, apenas faz sentido se dist[u] != INF
+            //pois INFINITO + (numeroNegativo) = INFINITO
+            if (dist[u] != INF && dist[u] + it->peso < dist[it->v]) {
+               dist[it->v] = dist[u] + it->peso;
+               pred[it->v] = u;
             }
          }
       }
    }
-   for (size_t j = 0; j < V; ++j) {
-      for (auto it : adj[j]) {
-         if (dist[j] + it->peso < dist[it->v]) {
+   for (size_t u = 0; u < V; ++u) {
+      for (auto it : adj[u]) {
+         if (dist[u] != INF && dist[u] + it->peso < dist[it->v]) {
             return false;
          }
       }
@@ -220,7 +248,7 @@ std::vector<ii> Grafo::prim(int src, int &custo) {
    return res;
 }
 
-int Grafo::fordFurkerson(int src, int dst, Grafo *&resGraph) {
+int Grafo::fordFulkerson(int src, int dst, Grafo *&resGraph) {
    //grafo residual
    //inicialmente possui a capacidade do grafo original
    resGraph = new Grafo(*this);
@@ -229,7 +257,7 @@ int Grafo::fordFurkerson(int src, int dst, Grafo *&resGraph) {
    int fluxoMaximo = 0;
 
    //enquanto tem caminho q pode aumentar o fluxo:
-   while (fordFurkersonPathFinder(resGraph, src, dst, pred)) {
+   while (fordFulkersonPathFinder(resGraph, src, dst, pred)) {
       //encontra a menor capacidade residual:
       int flow = INF;
       int u, v, w;
@@ -267,7 +295,7 @@ int Grafo::fordFurkerson(int src, int dst, Grafo *&resGraph) {
    return fluxoMaximo;
 }
 
-bool Grafo::fordFurkersonPathFinder(Grafo *resGraph, int s, int t, int *pred) {
+bool Grafo::fordFulkersonPathFinder(Grafo *&resGraph, int s, int t, int *pred) {
    bool *visitado = new bool[V];
    memset(visitado, false, sizeof(visitado));
 
