@@ -16,6 +16,7 @@ struct Link {
 
 struct LinkFF {
    int to, f, c;
+   bool reversa;
 };
 
 #endif // !LINK_HPP

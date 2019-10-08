@@ -284,9 +284,11 @@ void Grafo::createResGraph(std::vector<int> adj[], LinkFF edges[]) {
          int v = it->v;
          if (u < v) {
             //add aresta e aresta reversa
-            edges[curr].to = v; edges[curr].f = 0; edges[curr].c = it->peso;
+            edges[curr].to = v; edges[curr].f = 0; edges[curr].c = it->peso;  
+            edges[curr].reversa = false;
             adj[u].push_back(curr++);
             edges[curr].to = u; edges[curr].f = 0; edges[curr].c = 0;
+            edges[curr].reversa = true;
             adj[v].push_back(curr++);
          } else if (u > v) { 
             //entao verifica se ja n existe as arestas
@@ -295,13 +297,16 @@ void Grafo::createResGraph(std::vector<int> adj[], LinkFF edges[]) {
             for (i = adj[u].begin(); i != adj[u].end(); ++i) {
                if (edges[*i].to == v) {
                   edges[*i].c = it->peso;
+                  edges[*i].reversa = false;
                   break;
                }
             }
             if (i == adj[u].end()) { //se n existia aresta reversa
                edges[curr].to = v; edges[curr].f = 0; edges[curr].c = it->peso;
+               edges[curr].reversa = false;
                adj[u].push_back(curr++);
                edges[curr].to = u; edges[curr].f = 0; edges[curr].c = 0;
+               edges[curr].reversa = true;
                adj[v].push_back(curr++);
             }
          }

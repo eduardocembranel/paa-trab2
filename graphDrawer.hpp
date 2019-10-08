@@ -20,7 +20,8 @@ class GraphDrawer {
       std::vector<int>);
       
       
-      void drawGraphFordFulkerson(Grafo *, Grafo *, int, int);
+      void drawGraphFordFulkerson(Grafo *, std::vector<int> [], LinkFF [], 
+      int, int);
 
       void setGraphAttr(std::ofstream &, std::string);
       void setNodeAttr(std::ofstream &);
@@ -28,7 +29,8 @@ class GraphDrawer {
       void nodeDefine(std::ofstream &, Grafo *, int=-1, int=-1);
       void nodeDefineBellmanFord(std::ofstream &, Grafo *, int, std::vector<int>);    void edgeDefine(std::ofstream &, Grafo *);
       void edgeDefineHighlighted(std::ofstream &, Grafo *, std::vector<ii>);
-      void edgeDefineFordFulkerson(std::ofstream &, Grafo *, Grafo *);
+      void edgeDefineFordFulkerson(std::ofstream &, Grafo *, std::vector<int> [],
+      LinkFF []);
 };
 
 #endif // !GRAPHDRAWER

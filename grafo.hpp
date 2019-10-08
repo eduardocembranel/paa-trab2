@@ -16,8 +16,7 @@ class Grafo {
       std::vector<Link *> *adj; //lista de adjacencia
       std::vector<Vertice *> vertices; //lista de vertices
       bool orientado;
-
-
+      
       void dfsVisit(int, bool*, std::vector<ii> &);      
 
       std::vector<Aresta *> toArestas();
@@ -37,7 +36,6 @@ class Grafo {
       //copy constructor
       Grafo(Grafo &);
 
-
       ~Grafo();
       int getNumV() const;
       int getNumE() const;
@@ -51,11 +49,11 @@ class Grafo {
 
       void show() const; //debug
 
-      std::vector<ii> dfs(int); //ok
-      std::vector<ii> bfs(int); //ok
-      std::vector<ii> kruskal(int &); //ok
-      std::vector<ii> prim(int, int &); //ok
-      bool bellmanFord(int, std::vector<ii> &, std::vector<int> &); //ok
+      std::vector<ii> dfs(int); 
+      std::vector<ii> bfs(int); 
+      std::vector<ii> kruskal(int &); 
+      std::vector<ii> prim(int, int &); 
+      bool bellmanFord(int, std::vector<ii> &, std::vector<int> &); 
       int fordFulkerson(int, int, std::vector<int> [], LinkFF []);
 };
 

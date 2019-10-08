@@ -80,8 +80,8 @@ std::vector<ii> edges, int src, std::vector<int> dist) {
    saveImageGV(algoritmo);
 }
 
-void GraphDrawer::drawGraphFordFulkerson(Grafo *grafo, Grafo *resGrafo, 
-int src, int dst) {
+void GraphDrawer::drawGraphFordFulkerson(Grafo *grafo,
+std::vector<int> adj[], LinkFF edges[], int src, int dst) {
    std::ofstream file ("FordFulkerson.dot");
    file << "digraph grafo {" << std::endl;
 
@@ -89,7 +89,7 @@ int src, int dst) {
    setNodeAttr(file);
    setEdgeAttr(file, grafo->isOrientado());
    nodeDefine(file, grafo, src, dst);
-   edgeDefineFordFulkerson(file, grafo, resGrafo);
+   edgeDefineFordFulkerson(file, grafo, adj, edges);
 
    file << "}";
    file.close();
@@ -282,40 +282,26 @@ std::vector<ii> edges) {
 }
 
 void GraphDrawer::edgeDefineFordFulkerson(std::ofstream &file, Grafo *grafo,
-Grafo *resGrafo) {
+std::vector<int> adj[], LinkFF edges[]) {
    file << "  //edge define" << std::endl;
    std::string edge = (grafo->isOrientado()) ? " -> " : " -- ";
    std::string lblU, lblV;
 
    for (size_t u = 0; u < grafo->getNumV(); ++u) {
-      //Vertice u:
       lblU = "\"" + grafo->getLabelVertice(u) + "\"";
-
-      //Vertice v:
-      for (size_t j = 0; j < grafo->getAdj()[u].size(); ++j) {
-         Link *it  = grafo->getAdj()[u][j];
-         Link *it2 = resGrafo->getAdj()[u][j];
-         int v = it->v;
-
-         if (grafo->isOrientado() || u <= v) {
+      for (auto it : adj[u]) {
+         int v = edges[it].to;
+         int c = edges[it].c;
+         int f = edges[it].f;
+         if (!edges[it].reversa) {
+            std::string peso = ((f < 0) ? "0" : std::to_string(f)) + "/";
+            peso += std::to_string(c);
             lblV = "\"" + grafo->getLabelVertice(v) + "\"";
-
             file << "  " << lblU << edge << lblV << " ";
-
-            //custom edge
-            file << "[";
-            if (it->label != "") {
-               file << "label = <<font color=\"blue\">" + it->label + "</font>>, ";
-            }
-            
-            int flow = it->peso - it2->peso;
-            std::string lblPeso = 
-              std::to_string(flow) + "/" + std::to_string(it->peso);
-            
-            file << "xlabel = <<font color=\"black\">" 
-               + lblPeso + "</font>>, ";
+            file << "[xlabel = <<font color=\"black\">" + peso + "</font>>, ";
             file << "arrowhead = normal];\n";
+
          }
       }
-   }
+   } 
 }
