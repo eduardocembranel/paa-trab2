@@ -56,7 +56,7 @@ class Grafo {
       std::vector<ii> kruskal(int &); //ok
       std::vector<ii> prim(int, int &); //ok
       bool bellmanFord(int, std::vector<ii> &, std::vector<int> &); //ok
-      int fordFulkerson(int, int, Grafo *&);
+      int fordFulkerson(int, int, std::vector<int> [], LinkFF []);
 };
 
 #endif // !GRAFO_HPP

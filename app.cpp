@@ -171,15 +171,15 @@ void App::runFordFulkerson(int src, int dst) {
    limpaTela();
    std::cout << "[FORD-Fulkerson]\n\n";
 
-   Grafo *novo = nullptr;
-   int fluxoMaximo = grafo->fordFulkerson(src, dst, novo);
+   std::vector<int> adj[grafo->getNumV()];
+   LinkFF edges[MAXE];
+   int fluxoMaximo = grafo->fordFulkerson(src, dst, adj, edges);
    std::cout << "Fluxo Maximo: " << fluxoMaximo << "\n";
 
-   drawer->drawGraphFordFulkerson(grafo, novo, src, dst);
+   //drawer->drawGraphFordFulkerson(grafo, novo, src, dst);
    std::cout << "Resultado em FordFulkerson.png\n\n";
    system("xdg-open FordFulkerson.png");
 
-   delete novo; novo = nullptr;
    pressionaParaRetornar();
 }
 

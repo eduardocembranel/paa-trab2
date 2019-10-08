@@ -248,9 +248,7 @@ std::vector<ii> Grafo::prim(int src, int &custo) {
    return res;
 }
 
-int Grafo::fordFulkerson(int src, int dst, Grafo *&resGraph) {
-   std::vector<int> adj[V];
-   LinkFF edges[MAXE];
+int Grafo::fordFulkerson(int src, int dst, std::vector<int> adj[], LinkFF edges[]) {
    createResGraph(adj, edges);
 
    int flow = 0, tempo = 1;
