@@ -26,7 +26,9 @@ class Grafo {
 
       std::vector<ii> bellmanFordReconstruct(std::vector<int>);
 
-      bool fordFulkersonPathFinder(Grafo *&, int, int, int *);
+      void createResGraph(std::vector<int> [], LinkFF []);
+
+      int augPath(int, int, int, int *, int, std::vector<int> [], LinkFF []);
 
    public:
       Grafo();

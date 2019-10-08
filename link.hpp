@@ -3,14 +3,19 @@
 
 #include <string>
 
+#define MAXE 100010
+
 struct Link {
    std::string label; //label conexao
-   int peso; //peso da conexao
-   int v; //id do vertice destino
+   int peso, v; //peso da conexao e id do vertice destino
 
    Link(std::string, int, int);
 
    static bool comp(Link *, Link *);
+};
+
+struct LinkFF {
+   int to, f, c;
 };
 
 #endif // !LINK_HPP

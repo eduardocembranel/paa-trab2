@@ -249,79 +249,66 @@ std::vector<ii> Grafo::prim(int src, int &custo) {
 }
 
 int Grafo::fordFulkerson(int src, int dst, Grafo *&resGraph) {
-   //grafo residual
-   //inicialmente possui a capacidade do grafo original
-   resGraph = new Grafo(*this);
+   std::vector<int> adj[V];
+   LinkFF edges[MAXE];
+   createResGraph(adj, edges);
 
-   int *pred = new int[V];
-   int fluxoMaximo = 0;
-
-   //enquanto tem caminho q pode aumentar o fluxo:
-   while (fordFulkersonPathFinder(resGraph, src, dst, pred)) {
-      //encontra a menor capacidade residual:
-      int flow = INF;
-      int u, v, w;
-      for (v = dst; v != src; v = pred[v]) {
-         u = pred[v];
-         for (auto it : resGraph->getAdj()[u]) {
-            if (it->v == v) {
-               w = it->peso;
-               break;
-            }
-         }
-         flow = std::min(flow, w);
-      }
-
-      //atualiza as capacidades residuais:
-      for (v = dst; v != src; v = pred[v]) {
-         u = pred[v];
-         for (auto it : resGraph->getAdj()[u]) {
-            if (it->v == v) {
-               it->peso -= flow;
-               break;
-            }
-         }
-         for (auto it : resGraph->getAdj()[v]) {
-            if (it->v == u) {
-               it->peso += flow;
-               break;
-            }
-         }
-      }
-      fluxoMaximo += flow;
+   int flow = 0, tempo = 1;
+   int seen[V] = {};
+   while (int a = augPath(src, dst, INF, seen, tempo, adj, edges)) {
+      flow += a;
+      ++tempo;
    }
-
-   delete [] pred;
-   return fluxoMaximo;
+   return flow;
 }
 
-bool Grafo::fordFulkersonPathFinder(Grafo *&resGraph, int s, int t, int *pred) {
-   bool *visitado = new bool[V];
-   memset(visitado, false, sizeof(visitado));
+int Grafo::augPath(int s, int t, int f, int seen[], int tempo,
+std::vector<int> adj[], LinkFF edges[]) {
+   if (s == t) return f;
+   seen[s] = tempo;
+   for (int e : adj[s]) {
+      if (seen[edges[e].to] < tempo && edges[e].c - edges[e].f > 0) {
+         if (int a = augPath(edges[e].to, t, 
+         std::min(f, edges[e].c - edges[e].f), seen, tempo, adj, edges)) {
+            edges[e].f += a;
+            edges[e ^ 1].f -= a;
+            return a;
+         }
+      }
+   }
+   return 0;
+}
 
-   std::queue<int> q;
-   q.push(s);
-   visitado[s] = true;
-   pred[s] = -1;
-
-   while (!q.empty()) {
-      int u = q.front(); q.pop();
-      for (size_t v = 0; v < V; ++v) {
-         if (!visitado[v]) {
-            std::vector<Link *> tmp = resGraph->getAdj()[u];
-            for (auto it : tmp) {
-               if (it->v == v && it->peso > 0) {
-                  q.push(v);
-                  pred[v] = u;
-                  visitado[v] = true;
+void Grafo::createResGraph(std::vector<int> adj[], LinkFF edges[]) {
+   int curr = 0;
+   for (size_t u = 0; u < V; ++u) {
+      for (auto it : this->adj[u]) {
+         int v = it->v;
+         if (u < v) {
+            //add aresta e aresta reversa
+            edges[curr].to = v; edges[curr].f = 0; edges[curr].c = it->peso;
+            adj[u].push_back(curr++);
+            edges[curr].to = u; edges[curr].f = 0; edges[curr].c = 0;
+            adj[v].push_back(curr++);
+         } else if (u > v) { 
+            //entao verifica se ja n existe as arestas
+            //e apenas atualiza a aresta reversa
+            std::vector<int>::iterator i;
+            for (i = adj[u].begin(); i != adj[u].end(); ++i) {
+               if (edges[*i].to == v) {
+                  edges[*i].c = it->peso;
+                  break;
                }
+            }
+            if (i == adj[u].end()) { //se n existia aresta reversa
+               edges[curr].to = v; edges[curr].f = 0; edges[curr].c = it->peso;
+               adj[u].push_back(curr++);
+               edges[curr].to = u; edges[curr].f = 0; edges[curr].c = 0;
+               adj[v].push_back(curr++);
             }
          }
       }
    }
-   bool existe = (visitado[t] == true);
-   delete [] visitado;
-   return existe;
 }
 
 void Grafo::sort() {
